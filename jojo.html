@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>JOJO 追剧手账</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JOJO打卡">
+<style>
+:root{
+  --paper:#FAF7F0; --ink:#221A38; --dim:#8A8398; --line:#E5DECE;
+  --gold:#C9A227; --gold-deep:#A3831C; --violet:#5B4B8A;
+  --serif:Georgia,"Songti SC","STSong","SimSun",serif;
+  --mono:ui-monospace,"SF Mono",Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);max-width:660px;margin:0 auto;padding:0 18px 90px;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+body:before{content:"ゴ ゴ ゴ ゴ ゴ";position:fixed;top:80px;right:-8px;font-size:15px;letter-spacing:14px;writing-mode:vertical-rl;color:rgba(91,75,138,.10);font-weight:700;pointer-events:none;z-index:0}
+body:after{content:"ゴ ゴ ゴ ゴ";position:fixed;top:320px;left:-14px;font-size:13px;letter-spacing:12px;writing-mode:vertical-rl;color:rgba(201,162,39,.12);font-weight:700;pointer-events:none;z-index:0}
+header{padding:54px 0 0;position:relative;z-index:1}
+.kick{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--gold-deep);text-transform:uppercase}
+h1{font-size:36px;line-height:1.2;letter-spacing:.05em;margin:12px 0 4px;font-weight:700}
+h1 em{font-style:italic;color:var(--violet)}
+.dline{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.14em;margin-top:8px}
+.sub{font-size:14.5px;line-height:2;color:#4C445E;margin-top:14px}
+.sub .h{color:var(--gold-deep);font-weight:700}
+/* 总进度 */
+.meter{margin-top:24px;border:1.5px solid var(--ink);border-radius:18px;background:#FFF;padding:20px 18px 16px;position:relative;overflow:hidden}
+.meter .stars{position:absolute;right:-14px;top:-16px;font-size:70px;color:rgba(201,162,39,.14)}
+.m-top{display:flex;justify-content:space-between;align-items:baseline}
+.m-top .t{font-size:15px;font-weight:700}
+.big{font-size:44px;font-weight:700;letter-spacing:.02em;margin-top:8px;font-family:var(--serif)}
+.big small{font-size:15px;color:var(--dim);font-weight:400;margin-left:4px}
+.bar{height:10px;border:1.2px solid var(--ink);border-radius:99px;margin:14px 0 8px;overflow:hidden;background:#FFF}
+.bar i{display:block;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--gold) 0 8px,#E0BC4C 8px 16px);border-radius:99px;transition:width .5s ease}
+.bar-hint{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.12em;display:flex;justify-content:space-between}
+/* 部卡 */
+.parts{margin-top:30px;position:relative;z-index:1}
+.part{margin-bottom:22px;border:1.5px solid var(--line);border-radius:18px;background:#FFF;overflow:hidden}
+.part-head{padding:18px 18px 14px;cursor:pointer;position:relative}
+.pnum{font-family:var(--mono);font-size:10px;letter-spacing:.26em;color:var(--pc);margin-bottom:6px}
+.pname{font-size:21px;font-weight:700;letter-spacing:.04em}
+.pname em{font-style:italic;color:var(--dim);font-size:14px;font-weight:400;margin-left:8px;letter-spacing:0}
+.pmeta{font-size:12.5px;color:#5A5468;line-height:1.9;margin-top:7px}
+.pmeta b{color:var(--pc)}
+.quote{font-size:13px;color:var(--dim);font-style:italic;margin-top:6px}
+.prog{font-family:var(--mono);font-size:12px;color:var(--ink);position:absolute;right:18px;top:20px;text-align:right}
+.prog b{font-size:19px;display:block}
+.prog .st{font-size:11px;margin-top:2px;display:block}
+.prog .st.full{color:var(--gold-deep);font-weight:700}
+.tri{position:absolute;right:20px;bottom:14px;width:9px;height:9px;border-right:1.6px solid var(--dim);border-bottom:1.6px solid var(--dim);transform:rotate(45deg);transition:transform .25s}
+.part.open .tri{transform:rotate(-135deg)}
+.grid{display:none;grid-template-columns:repeat(6,1fr);gap:7px;padding:4px 16px 18px}
+.part.open .grid{display:grid}
+@media(max-width:430px){.grid{grid-template-columns:repeat(6,1fr)}}
+.cell{aspect-ratio:1;border:1.4px solid var(--line);border-radius:9px;background:#FCFAF4;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:#6B6480;cursor:pointer;transition:all .18s;position:relative;user-select:none}
+.cell:active{transform:scale(.92)}
+.cell.on{border-color:var(--pc);background:var(--pc);color:#FFF;font-weight:700}
+.cell.on:before{content:"★";position:absolute;top:1px;right:3px;font-size:7px;color:rgba(255,255,255,.75)}
+.cell.milestone{border-style:dashed;border-color:var(--pc)}
+/* 徽章墙 */
+.badges{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:24px;position:relative;z-index:1}
+.badges h3{font-size:17px;letter-spacing:.08em;margin-bottom:14px}
+.bw{display:flex;gap:10px;flex-wrap:wrap}
+.badge{width:calc(33.33% - 7px);border:1.4px solid var(--line);border-radius:14px;padding:13px 10px;text-align:center;background:#FCFAF4;opacity:.45;transition:all .3s}
+.badge .bs{font-size:22px;display:block;filter:grayscale(1);transition:filter .3s}
+.badge .bt{font-size:12px;font-weight:700;margin-top:6px;display:block}
+.badge .be{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--dim);display:block;margin-top:3px}
+.badge.lit{opacity:1;border-color:var(--gold);background:#FFFDF4}
+.badge.lit .bs{filter:none}
+/* SBR */
+.sbr{margin-top:26px;border:1.5px dashed var(--line);border-radius:18px;padding:18px;background:repeating-linear-gradient(45deg,#FCFAF4,#FCFAF4 12px,#F7F2E6 12px,#F7F2E6 24px)}
+.sbr .t{font-size:16px;font-weight:700}
+.sbr .n{font-size:12.5px;color:var(--dim);line-height:1.9;margin-top:5px}
+footer{margin-top:30px;font-family:var(--mono);font-size:9.5px;color:var(--dim);letter-spacing:.14em;line-height:2;display:flex;justify-content:space-between;gap:12px;position:relative;z-index:1}
+footer .dis{max-width:74%}
+.cf{position:fixed;z-index:99;pointer-events:none;border-radius:2px}
+#toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(18px);opacity:0;background:var(--ink);color:var(--gold);font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:11px 22px;border-radius:99px;transition:all .3s;pointer-events:none;z-index:99;max-width:86%;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:420px){h1{font-size:30px}.big{font-size:38px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="kick">JOJO'S BIZARRE ADVENTURE /// TRACKING LOG</div>
+  <h1>JOJO 追剧手账<br><em>190 话的奇妙冒险</em></h1>
+  <div class="dline" id="dline"></div>
+  <p class="sub">六部动画，一个家族的星星。看一话，点亮一格——<span class="h">顺序随意，从哪一部开始都行</span>（但 JoJo 的话，还是按部来更有味道）。记录只存在你自己的设备上。</p>
+</header>
+
+<section class="meter">
+  <div class="stars">★</div>
+  <div class="m-top"><span class="t">追剧总进度</span></div>
+  <div class="big"><span id="totalNum">0</span><small>/ 190 话</small></div>
+  <div class="bar"><i id="totalBar"></i></div>
+  <div class="bar-hint"><span id="pct">0%</span><span>PHANTOM BLOOD → STONE OCEAN</span></div>
+</section>
+
+<main class="parts" id="parts"></main>
+
+<div class="sbr">
+  <div class="t">第七部 · 飙马野郎 <span style="font-style:italic;color:var(--dim);font-size:13px">Steel Ball Run</span></div>
+  <div class="n">乔尼·乔斯达与杰洛·齐贝林的横断美国之旅——动画化制作中，敬请期待。追完前面六部，你就是等着它的那批人了。</div>
+</div>
+
+<section class="badges">
+  <h3>制霸星章</h3>
+  <div class="bw" id="badges"></div>
+</section>
+
+<footer>
+  <span class="dis">追剧记录保存在本机浏览器 · 换设备不带走，像替身一样。</span>
+  <span>GO GO GO</span>
+</footer>
+<div id="toast"></div>
+
+<script>
+/* ============ 六部动画数据（话数经核实） ============ */
+const PARTS = [
+  {id:"p1", n:"第一部", cn:"幻影之血", en:"Phantom Blood", eps:9,
+   color:"#8C2B33", hero:"乔纳森·乔斯达", stand:"波纹呼吸",
+   quote:"「这是最后的波纹了！」", place:"19 世纪末 · 英国",
+   badge:"绅士的胜利", toast:"幻影之血 制霸 · 这是最后的波纹了！"},
+  {id:"p2", n:"第二部", cn:"战斗潮流", en:"Battle Tendency", eps:17,
+   color:"#4A7C59", hero:"乔瑟夫·乔斯达", stand:"波纹 · 智斗流",
+   quote:"「你的下一句话是——」", place:"1938 · 纽约到瑞士，柱之男复苏",
+   badge:"狡猾是夸奖", toast:"战斗潮流 制霸 · 你的下一句话是——「再看一遍」！"},
+  {id:"p3", n:"第三部", cn:"星尘斗士", en:"Stardust Crusaders", eps:48,
+   color:"#5B4B8A", hero:"空条承太郎", stand:"白金之星 Star Platinum",
+   quote:"「呀嘞呀嘞哒哦」", place:"日本到埃及 · 50 天的旅程",
+   badge:"欧拉欧拉欧拉", toast:"星尘斗士 制霸 · 呀嘞呀嘞哒哦，50 天走完了"},
+  {id:"p4", n:"第四部", cn:"不灭钻石", en:"Diamond is Unbreakable", eps:39,
+   color:"#C77E9E", hero:"东方仗助", stand:"疯狂钻石 Crazy Diamond",
+   quote:"「好棒好棒！Great！」", place:"杜王町 · 平静小镇的连环杀人魔",
+   badge:"杜王町制霸", toast:"不灭钻石 制霸 · 杜王町是最安全的！"},
+  {id:"p5", n:"第五部", cn:"黄金之风", en:"Golden Wind", eps:39,
+   color:"#B08A1E", hero:"乔鲁诺·乔巴拿", stand:"黄金体验 Gold Experience",
+   quote:"「我乔鲁诺·乔巴拿有一个梦想」", place:"意大利 · 黑帮与觉悟之魂",
+   badge:"觉悟之魂", toast:"黄金之风 制霸 · 我有一个梦想，实现了"},
+  {id:"p6", n:"第六部", cn:"石之海", en:"Stone Ocean", eps:38,
+   color:"#3E7C8F", hero:"空条徐伦", stand:"石之自由 Stone Free",
+   quote:"「同一血族的星星标记」", place:"绿海豚街监狱 · 终结之旅",
+   badge:"六颗星齐亮", toast:"石之海 制霸 · 同一血族的星星，六颗都亮了"}
+];
+const TOTAL = PARTS.reduce((s,p)=>s+p.eps,0); /* 190 */
+const KEY = "jojo_v1";
+let LOG = {};
+try{ LOG = JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){ LOG={}; }
+function save(){ localStorage.setItem(KEY, JSON.stringify(LOG)); }
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2200); }
+const CF=["#C9A227","#5B4B8A","#C77E9E","#3E7C8F","#8C2B33","#F2C94C"];
+function burst(x,y,n){ for(let k=0;k<n;k++){ const p=document.createElement("div"); p.className="cf";
+  const w=3+Math.random()*4, h=3+Math.random()*8, c=CF[Math.floor(Math.random()*CF.length)];
+  p.style.cssText=`left:${x}px;top:${y}px;width:${w}px;height:${h}px;background:${c}`;
+  const tx=(Math.random()-.5)*240, ty=-Math.random()*160-30, r=(Math.random()-.5)*420;
+  document.body.appendChild(p);
+  p.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:`translate(${tx}px,${ty}px) rotate(${r}deg)`,opacity:0}],{duration:550+Math.random()*400,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=()=>p.remove(); } }
+function count(pid){ const p=PARTS.find(x=>x.id===pid); let c=0; for(let i=1;i<=p.eps;i++) if(LOG[pid+"-"+i]) c++; return c; }
+function total(){ return PARTS.reduce((s,p)=>s+count(p.id),0); }
+function partHTML(p){
+  let cells="";
+  for(let i=1;i<=p.eps;i++){
+    const on = !!LOG[p.id+"-"+i];
+    const ms = (i===1||i===p.eps||i===Math.ceil(p.eps/2)) ? " milestone" : "";
+    cells += `<div class="cell${on?" on":""}${ms}" data-p="${p.id}" data-i="${i}">${i}</div>`;
+  }
+  const c = count(p.id), full = c===p.eps;
+  return `<section class="part" id="sec-${p.id}" style="--pc:${p.color}">
+    <div class="part-head" data-toggle="${p.id}">
+      <div class="pnum">${p.n} /// ${p.en.toUpperCase()}</div>
+      <div class="pname">${p.cn}<em>${p.en}</em></div>
+      <div class="pmeta">${p.place} · <b>${p.hero}</b> · ${p.stand}</div>
+      <div class="quote">${p.quote}</div>
+      <div class="prog"><b>${c}<span style="font-size:11px;color:var(--dim)">/${p.eps}</span></b>
+        <span class="st ${full?"full":""}">${full?"制霸 ✦":""}</span></div>
+      <div class="tri"></div>
+    </div>
+    <div class="grid">${cells}</div>
+  </section>`;
+}
+function render(){
+  document.getElementById("dline").textContent = "6 PARTS · " + TOTAL + " EPISODES · DAVID PRODUCTION · 2012—2022";
+  document.getElementById("parts").innerHTML = PARTS.map(partHTML).join("");
+  // 总进度
+  const t = total(), pct = Math.round(t/TOTAL*100);
+  document.getElementById("totalNum").textContent = t;
+  document.getElementById("totalBar").style.width = pct+"%";
+  document.getElementById("pct").textContent = pct+"%";
+  // 徽章
+  document.getElementById("badges").innerHTML = PARTS.map(p=>{
+    const full = count(p.id)===p.eps;
+    return `<div class="badge ${full?"lit":""}"><span class="bs">★</span><span class="bt" style="color:${full?p.color:"var(--dim)"}">${p.badge}</span><span class="be">${p.cn} 制霸</span></div>`;
+  }).join("");
+  // 绑定
+  document.querySelectorAll(".part-head").forEach(h=>{
+    h.addEventListener("click",e=>{
+      if(e.target.closest(".cell")) return;
+      document.getElementById("sec-"+h.dataset.toggle).classList.toggle("open");
+    });
+  });
+  document.querySelectorAll(".cell").forEach(c=>{
+    c.addEventListener("click",e=>{
+      const pid=c.dataset.p, i=+c.dataset.i, id=pid+"-"+i;
+      LOG[id] = !LOG[id];
+      if(LOG[id]){
+        const r=c.getBoundingClientRect();
+        burst(r.left+r.width/2, r.top+r.height/2, 7);
+        const p=PARTS.find(x=>x.id===pid);
+        if(count(pid)===p.eps){ toast(p.toast); burst(r.left+r.width/2, r.top+8, 26); }
+        if(total()===TOTAL){ setTimeout(()=>toast("190 话全制霸 · GO GO GO！下一个目标：飙马野郎"), 2400); }
+      } else { delete LOG[id]; }
+      save(); render();
+      /* 重开后保持当前部展开 */
+      document.getElementById("sec-"+pid).classList.add("open");
+    });
+  });
+}
+/* 默认展开：有进度的部 > 第一部 */
+(function(){
+  render();
+  const started = PARTS.filter(p=>count(p.id)>0);
+  if(started.length){ started.forEach(p=>document.getElementById("sec-"+p.id).classList.add("open")); }
+  else { document.getElementById("sec-p1").classList.add("open"); }
+})();
+</script>
+</body>
+</html>
